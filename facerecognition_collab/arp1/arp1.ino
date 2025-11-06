@@ -6,7 +6,7 @@
 // ================== CONFIGURATION ==================
 const char* ssid = "vivo Y21G";
 const char* password = "00000000";
-const char* serverURL = "http://10.129.55.252:8000/upload"; // Flask server IP
+const char* serverURL = "http://10.235.207.252:8000/upload"; // Flask server IP
 
 #define RELAY_PIN 4           // Relay control pin (use GPIO12 or GPIO14)
 #define RELAY_ON HIGH
@@ -41,7 +41,7 @@ void connectToWiFi() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("\n✅ WiFi Connected!");
+  Serial.println("\nWiFi Connected!");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 }
@@ -70,25 +70,25 @@ void setupCamera() {
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
 
-  config.frame_size = FRAMESIZE_QVGA;
+  config.frame_size = FRAMESIZE_VGA;
   config.jpeg_quality = 5;
   config.fb_count = 2;
 
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
-    Serial.printf("❌ Camera init failed with error 0x%x\n", err);
+    Serial.printf("Camera init failed with error 0x%x\n", err);
   } else {
-    Serial.println("📸 Camera initialized successfully!");
+    Serial.println("Camera initialized successfully!");
   }
 }
 
 // ================== RELAY CONTROL ==================
 void triggerRelay() {
-  Serial.println("🔓 Relay ON (door unlock)");
+  Serial.println("Relay ON (door unlock)");
   digitalWrite(RELAY_PIN, RELAY_ON);
   delay(RELAY_ACTIVE_TIME);
   digitalWrite(RELAY_PIN, RELAY_OFF);
-  Serial.println("🔒 Relay OFF (door lock)");
+  Serial.println("Relay OFF (door lock)");
 }
 
 // ================== CAPTURE & UPLOAD ==================
@@ -104,7 +104,7 @@ void captureAndUpload() {
 
   camera_fb_t* fb = esp_camera_fb_get();
   if (!fb) {
-    Serial.println("❌ Camera capture failed!");
+    Serial.println("Camera capture failed!");
     if (useFlash) digitalWrite(FLASH_GPIO_NUM, LOW);
     delay(2000);
     return;
@@ -112,7 +112,7 @@ void captureAndUpload() {
 
   if (useFlash) digitalWrite(FLASH_GPIO_NUM, LOW);
 
-  Serial.printf("📤 Captured %d bytes. Uploading...\n", fb->len);
+  Serial.printf("Captured %d bytes. Uploading...\n", fb->len);
 
   String boundary = "----ESP32Boundary";
   String bodyStart = "--" + boundary + "\r\n";
@@ -139,7 +139,7 @@ void captureAndUpload() {
   int code = http.POST(payload, totalLen);
   if (code > 0) {
     String response = http.getString();
-    Serial.printf("✅ Server responded: %d\n", code);
+    Serial.printf("Server responded: %d\n", code);
     Serial.println(response);
 
     // Parse JSON to check for "authorised"
@@ -149,10 +149,10 @@ void captureAndUpload() {
     if (!error && doc["status"] == "authorised") {
       triggerRelay();
     } else {
-      Serial.println("❌ Not authorised or face not recognised.");
+      Serial.println("Not authorised or face not recognised.");
     }
 
-  } else {
+  } else {  
     Serial.printf("Upload failed: %s\n", http.errorToString(code).c_str());
   }
 
@@ -177,5 +177,5 @@ void setup() {
 // ================== LOOP ==================
 void loop() {
   captureAndUpload();
-  delay(8000); // Wait before next frame
+  delay(6000); // Wait before next frame
 }
