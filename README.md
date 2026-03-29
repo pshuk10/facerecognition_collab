@@ -48,7 +48,6 @@ The hardware setup is powered by a 12V DC source, regulated for the microcontrol
 * Initializes Camera and PSRAM.
 * Captures images and compresses them into JPEG format.
 * Transmits images via **HTTP multipart POST** requests.
-* Manages a Finite State Machine (FSM) for IDLE, CAPTURE, VERIFY, and ACTUATE states.
 
 ### Flask Server (Python)
 * Receives images at the `/upload` endpoint.
